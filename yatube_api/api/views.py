@@ -1,14 +1,14 @@
 from rest_framework import viewsets, mixins
 from rest_framework.exceptions import PermissionDenied
 
-from posts.models import Post, Group
+from posts.models import Post, Group, Comment
 
-from .serializers import PostSerializer, GroupSerializer
+from .serializers import PostSerializer, GroupSerializer, CommentSerializer
 
 
 class ListRetrieveViewSet(
-    mixins.ListAPIView,
-    mixins.RetrieveAPIView,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     viewsets.GenericViewSet
 ):
     pass
@@ -32,8 +32,14 @@ class PostViewSet(viewsets.ModelViewSet):
         super(PostViewSet, self).perform_destroy(instance)
 
 
-class GroupViewSet(
-    ListRetrieveViewSet
-):
+class GroupViewSet(ListRetrieveViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        return super().get_queryset()

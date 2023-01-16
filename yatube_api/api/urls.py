@@ -4,13 +4,14 @@ from rest_framework.routers import DefaultRouter
 
 from rest_framework.authtoken.views import obtain_auth_token
 
-from .views import PostViewSet, GroupViewSet
+from .views import PostViewSet, GroupViewSet, CommentViewSet
 
 
 router = DefaultRouter()
 
 router.register(r'posts', PostViewSet)
 router.register(r'groups', GroupViewSet)
+router.register(r'posts\/[1-9]\d*\/comments', CommentViewSet)
 
 urlpatterns = [
     path('v1/', include(router.urls)),

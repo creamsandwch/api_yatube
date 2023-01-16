@@ -1,29 +1,26 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from posts.models import Post, Group
+from posts.models import Post, Group, Comment
 
 
-CHOICES = Group.objects.all()
-
-
-class PostSerializer(serializers.ModelSerializer):
-    author = serializers.PrimaryKeyRelatedField(
-        default=serializers.CurrentUserDefault()
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField(
+        read_only=True
     )
-    group = serializers.ChoiceField(choices=CHOICES)
+    post = serializers.PrimaryKeyRelatedField(
+        read_only=True
+    )
 
     class Meta:
-        model = Post
+        model = Comment
         fields = (
-            'text',
-            'pub_date',
+            'id',
             'author',
-            'image',
-            'group'
+            'post',
+            'text',
+            'created'
         )
-        read_only_fields = ('author', 'pub_date')
-        optional_fields = ('image', 'group')
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -35,8 +32,30 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = (
+            'id',
             'title',
             'slug',
             'description',
         )
         required_fields = ('title', )
+        read_only_fields = ('title', 'slug', 'description')
+
+
+class PostSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField(
+        default=serializers.CurrentUserDefault(),
+        read_only=True
+    )
+
+    class Meta:
+        model = Post
+        fields = (
+            'id',
+            'text',
+            'author',
+            'image',
+            'group',
+            'pub_date',
+        )
+        read_only_fields = ('author', 'pub_date')
+        optional_fields = ('image', 'group')
