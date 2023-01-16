@@ -11,7 +11,7 @@ router = DefaultRouter()
 
 router.register(r'posts', PostViewSet)
 router.register(r'groups', GroupViewSet)
-router.register(r'posts\/[1-9]\d*\/comments', CommentViewSet)
+router.register(r'posts\/(?P<post_pk>([1-9]\d*))\/comments', CommentViewSet)
 
 urlpatterns = [
     path('v1/', include(router.urls)),
