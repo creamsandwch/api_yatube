@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import viewsets, mixins
 from rest_framework.exceptions import PermissionDenied
 
@@ -38,6 +40,13 @@ class PostViewSet(MainViewSet):
 class CommentViewSet(MainViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+    def perform_create(self, serializer):
+        post_instance = get_object_or_404(Post, id=self.kwargs.get('post_pk'))
+        serializer.save(
+            author=self.request.user,
+            post=post_instance
+        )
 
     def get_queryset(self):
         post_pk = self.kwargs.get('post_pk')
