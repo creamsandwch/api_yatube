@@ -1,10 +1,9 @@
 from django.shortcuts import get_object_or_404
-
 from rest_framework import viewsets, mixins
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import BasePermission, IsAuthenticated
 
 from posts.models import Post, Group, Comment
-
 from .serializers import PostSerializer, GroupSerializer, CommentSerializer
 
 
@@ -16,20 +15,20 @@ class ListRetrieveViewSet(
     pass
 
 
+class AuthorPermission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user != obj.author:
+            return False
+            raise PermissionDenied('Удаление чужого контента запрещено!')
+        return True
+
+
 class MainViewSet(viewsets.ModelViewSet):
     '''Вьюсет для ограничения доступа к контенту, принадлежащего его автору.'''
+    permission_classes = [AuthorPermission, IsAuthenticated]
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-    def perform_update(self, serializer):
-        if serializer.instance.author != self.request.user:
-            raise PermissionDenied('Удаление чужого контента запрещено!')
-        super(MainViewSet, self).perform_update(serializer)
-
-    def perform_destroy(self, instance):
-        if instance.author != self.request.user:
-            raise PermissionDenied('Удаление чужого контента запрещено!')
-        super(MainViewSet, self).perform_destroy(instance)
 
 
 class PostViewSet(MainViewSet):
@@ -50,9 +49,8 @@ class CommentViewSet(MainViewSet):
 
     def get_queryset(self):
         post_pk = self.kwargs.get('post_pk')
-        return super().get_queryset().filter(
-            post=post_pk
-        )
+        post = get_object_or_404(Post, id=post_pk)
+        return post.comments.all()
 
 
 class GroupViewSet(ListRetrieveViewSet):
