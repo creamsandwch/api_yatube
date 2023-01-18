@@ -44,8 +44,9 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(
+    author = serializers.SlugRelatedField(
         default=serializers.CurrentUserDefault(),
+        slug_field='username',
         read_only=True
     )
 

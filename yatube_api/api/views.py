@@ -1,10 +1,10 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 from posts.models import Post, Group, Comment
 from .serializers import PostSerializer, GroupSerializer, CommentSerializer
+from .permissions import AuthorPermission
 
 
 class ListRetrieveViewSet(
@@ -13,14 +13,6 @@ class ListRetrieveViewSet(
     viewsets.GenericViewSet
 ):
     pass
-
-
-class AuthorPermission(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.user != obj.author:
-            return False
-            raise PermissionDenied('Удаление чужого контента запрещено!')
-        return True
 
 
 class MainViewSet(viewsets.ModelViewSet):
